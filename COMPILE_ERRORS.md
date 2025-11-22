@@ -2,17 +2,60 @@
 
 ## ✅ 已修复的问题
 
-### 1. Combine 框架导入错误
+### 1. SwiftData @Model 宏冲突 ✅
+
+**错误信息**:
+```
+Type 'SyncConfiguration' does not conform to protocol 'PersistentModel'
+Main actor-isolated conformance to 'Hashable' cannot satisfy conformance requirement
+```
+
+**原因**: SwiftData 的 `@Model` 宏会自动生成 `Hashable` 和 `Equatable` 实现，手动实现会产生冲突。
+
+**已修复**: 移除了手动实现的 Hashable/Equatable 扩展。
+- ✅ Models/SyncConfiguration.swift
+- ✅ Models/SyncLog.swift
+
+### 2. MainActor 隔离问题 ✅
+
+**错误信息**:
+```
+Main actor-isolated static property 'shared' can not be referenced from a nonisolated context
+```
+
+**原因**: Swift 6 语言模式下的并发安全要求。
+
+**已修复**: 修改了 SyncEngine 初始化器使用可选参数。
+- ✅ Services/SyncEngine.swift
+
+### 3. LogManager 方法参数错误 ✅
+
+**错误信息**:
+```
+Extra arguments at positions #4, #5 in call
+```
+
+**原因**: `info()` 方法签名不支持额外参数。
+
+**已修复**: 改用 `log()` 方法。
+- ✅ Services/SyncEngine.swift
+
+### 4. 缺少 AccentColor 资源 ✅
+
+**已修复**: 添加了 AccentColor.colorset。
+- ✅ Resources/Assets.xcassets/AccentColor.colorset/
+
+### 5. Combine 框架导入错误 ✅
 
 **错误信息**:
 ```
 Type 'ConflictResolver' does not conform to protocol 'ObservableObject'
-Initializer 'init(wrappedValue:)' is not available due to missing import of defining module 'Combine'
+Initializer 'init(wrappedValue:)' is not available
 ```
 
-**原因**: `@Published` 和 `ObservableObject` 需要 `Combine` 框架支持。
+**原因**: `@Published` 和 `ObservableObject` 需要 `Combine` 框架。
 
-**已修复**: 在以下文件中添加了 `import Combine`：
+**已修复**: 添加了 `import Combine`。
 - ✅ Services/ConflictResolver.swift
 - ✅ Services/SyncEngine.swift
 - ✅ Services/FileMonitor.swift
