@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// 偏好设置视图
 struct PreferencesView: View {

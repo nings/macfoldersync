@@ -7,7 +7,7 @@
 
 import Foundation
 import AppKit
-import Combine
+@preconcurrency import Combine
 
 /// 冲突信息结构
 struct ConflictInfo {
