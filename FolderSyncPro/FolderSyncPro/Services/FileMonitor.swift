@@ -164,7 +164,9 @@ final class FileMonitor: ObservableObject {
 
         eventStream = FSEventStreamCreate(
             kCFAllocatorDefault,
-            eventStreamCallback,
+            { (streamRef, clientCallBackInfo, numEvents, eventPaths, eventFlags, eventIds) in
+                eventStreamCallback(streamRef, clientCallBackInfo, numEvents, eventPaths, eventFlags, eventIds)
+            },
             &context,
             pathsToWatch,
             FSEventStreamEventId(kFSEventStreamEventIdSinceNow),
