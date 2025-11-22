@@ -21,12 +21,31 @@ Main actor-isolated conformance to 'Hashable' cannot satisfy conformance require
 **错误信息**:
 ```
 Main actor-isolated static property 'shared' can not be referenced from a nonisolated context
+Main actor-isolated property 'logBuffer' can not be mutated from a Sendable closure
+Main actor-isolated property 'logBuffer' can not be referenced from a Sendable closure
+Call to main actor-isolated instance method 'flushLogBuffer()' in a synchronous nonisolated context
 ```
+(ConflictResolver.swift:52, LogManager.swift:203, 206, 207, 410)
 
 **原因**: Swift 6 语言模式下的并发安全要求。
 
-**已修复**: 修改了 SyncEngine 初始化器使用可选参数。
-- ✅ Services/SyncEngine.swift
+**已修复**:
+1. **初始化器参数** - 修改使用可选参数
+   - ✅ Services/SyncEngine.swift: `init(logManager: LogManager? = nil)`
+   - ✅ Services/ConflictResolver.swift: `init(logManager: LogManager? = nil)`
+   - 在 MainActor 上下文中访问 shared: `logManager ?? LogManager.shared`
+
+2. **LogManager 并发安全** - 使用 nonisolated(unsafe)
+   - ✅ Services/LogManager.swift
+   - `nonisolated(unsafe) private var logBuffer: [String] = []`
+   - `nonisolated(unsafe) private var logFileHandle: FileHandle?`
+   - `nonisolated private func flushLogBuffer()`
+   - 这些是安全的，因为已被 `logQueue` 串行队列保护
+
+**技术说明**:
+- `nonisolated(unsafe)` 用于已有其他同步机制（如串行队列）保护的属性
+- logQueue 确保了对 logBuffer 和 logFileHandle 的线程安全访问
+- 这是 Swift 6 并发模型处理遗留代码的推荐做法
 
 ### 3. LogManager 方法参数错误 ✅
 
@@ -371,6 +390,6 @@ cd /path/to/macfoldersync
 ---
 
 **当前状态**: ✅ 所有已知编译错误已修复（共 8 类错误）
-**最新修复**: LogView.swift UniformTypeIdentifiers 导入
+**最新修复**: Swift 6 MainActor 并发隔离问题 (nonisolated(unsafe))
 **最后更新**: 2025-11-22
-**提交**: 401d448
+**提交**: 94227b1
