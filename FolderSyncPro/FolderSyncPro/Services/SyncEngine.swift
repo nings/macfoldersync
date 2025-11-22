@@ -231,6 +231,27 @@ final class SyncEngine: ObservableObject {
     private func validatePaths(configuration: SyncConfiguration) throws {
         let fileManager = FileManager.default
 
+        // 尝试使用 security-scoped bookmark 恢复访问权限
+        if let sourceBookmark = configuration.sourceBookmarkData {
+            do {
+                let sourceURL = try fileManager.resolveSecurityScopedBookmark(sourceBookmark)
+                // 开始访问 security-scoped resource
+                _ = sourceURL.startAccessingSecurityScopedResource()
+            } catch {
+                logManager.warning("恢复源文件夹权限失败: \(error.localizedDescription)")
+            }
+        }
+
+        if let targetBookmark = configuration.targetBookmarkData {
+            do {
+                let targetURL = try fileManager.resolveSecurityScopedBookmark(targetBookmark)
+                // 开始访问 security-scoped resource
+                _ = targetURL.startAccessingSecurityScopedResource()
+            } catch {
+                logManager.warning("恢复目标文件夹权限失败: \(error.localizedDescription)")
+            }
+        }
+
         // 检查源路径
         guard fileManager.fileExists(atPath: configuration.sourcePath) else {
             throw SyncError.sourcePathNotFound

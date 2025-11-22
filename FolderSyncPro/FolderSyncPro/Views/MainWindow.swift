@@ -240,6 +240,8 @@ struct AddConfigurationView: View {
     @State private var name = ""
     @State private var sourcePath = ""
     @State private var targetPath = ""
+    @State private var sourceBookmarkData: Data?
+    @State private var targetBookmarkData: Data?
     @State private var syncMode: SyncMode = .bidirectional
     @State private var conflictStrategy: ConflictResolutionStrategy = .newerWins
     @State private var isRealtimeMonitorEnabled = true
@@ -319,11 +321,25 @@ struct AddConfigurationView: View {
         panel.allowsMultipleSelection = false
 
         if panel.runModal() == .OK, let url = panel.url {
+            // 保存路径
             switch type {
             case .source:
                 sourcePath = url.path
             case .target:
                 targetPath = url.path
+            }
+
+            // 创建并保存 security-scoped bookmark
+            do {
+                let bookmarkData = try FileManager.default.createSecurityScopedBookmark(for: url)
+                switch type {
+                case .source:
+                    sourceBookmarkData = bookmarkData
+                case .target:
+                    targetBookmarkData = bookmarkData
+                }
+            } catch {
+                print("创建 bookmark 失败: \(error)")
             }
         }
     }
@@ -337,6 +353,10 @@ struct AddConfigurationView: View {
             conflictStrategy: conflictStrategy,
             isRealtimeMonitorEnabled: isRealtimeMonitorEnabled
         )
+
+        // 保存 security-scoped bookmarks
+        config.sourceBookmarkData = sourceBookmarkData
+        config.targetBookmarkData = targetBookmarkData
 
         modelContext.insert(config)
         try? modelContext.save()
