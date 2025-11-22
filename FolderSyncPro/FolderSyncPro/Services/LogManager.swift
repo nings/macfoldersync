@@ -112,6 +112,9 @@ final class LogManager: ObservableObject {
     ///   - filePath: 文件路径
     ///   - details: 详细信息
     ///   - errorCode: 错误代码
+    ///   - duration: 持续时间（秒）
+    ///   - filesProcessed: 处理的文件数量
+    ///   - bytesProcessed: 处理的字节数
     func log(
         level: LogLevel,
         operation: SyncOperation,
@@ -119,7 +122,10 @@ final class LogManager: ObservableObject {
         configurationId: UUID? = nil,
         filePath: String? = nil,
         details: String? = nil,
-        errorCode: Int? = nil
+        errorCode: Int? = nil,
+        duration: TimeInterval? = nil,
+        filesProcessed: Int? = nil,
+        bytesProcessed: Int64? = nil
     ) {
         // 检查日志级别
         guard level >= minimumLogLevel else { return }
@@ -132,7 +138,10 @@ final class LogManager: ObservableObject {
             configurationId: configurationId,
             filePath: filePath,
             details: details,
-            errorCode: errorCode
+            errorCode: errorCode,
+            duration: duration,
+            filesProcessed: filesProcessed,
+            bytesProcessed: bytesProcessed
         )
 
         // 异步处理日志
