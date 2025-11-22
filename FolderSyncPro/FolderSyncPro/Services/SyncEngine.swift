@@ -168,6 +168,12 @@ final class SyncEngine: ObservableObject {
             let fileManager = FileManager.default
 
             logManager.debug(
+                "检查 Base64 字符串: 源=\(configuration.sourceBookmarkBase64 != nil ? "存在(\(configuration.sourceBookmarkBase64!.count)字符)" : "不存在"), 目标=\(configuration.targetBookmarkBase64 != nil ? "存在(\(configuration.targetBookmarkBase64!.count)字符)" : "不存在")",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+
+            logManager.debug(
                 "检查 bookmark 数据: 源=\(configuration.sourceBookmarkData != nil ? "存在(\(configuration.sourceBookmarkData!.count)字节)" : "不存在"), 目标=\(configuration.targetBookmarkData != nil ? "存在(\(configuration.targetBookmarkData!.count)字节)" : "不存在")",
                 operation: .scan,
                 configurationId: configuration.id

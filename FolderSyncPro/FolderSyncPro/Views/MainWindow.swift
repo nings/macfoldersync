@@ -374,6 +374,9 @@ struct AddConfigurationView: View {
         config.sourceBookmarkData = sourceBookmarkData
         config.targetBookmarkData = targetBookmarkData
 
+        print("  - 源 Base64: \(config.sourceBookmarkBase64 != nil ? "存在(\(config.sourceBookmarkBase64!.count)字符)" : "不存在 ❌")")
+        print("  - 目标 Base64: \(config.targetBookmarkBase64 != nil ? "存在(\(config.targetBookmarkBase64!.count)字符)" : "不存在 ❌")")
+
         print("💾 插入配置到数据库...")
         modelContext.insert(config)
 
@@ -381,6 +384,8 @@ struct AddConfigurationView: View {
             try modelContext.save()
             print("✅ 配置已保存到数据库")
             print("  - ID: \(config.id)")
+            print("  - 源 Base64 (保存后): \(config.sourceBookmarkBase64 != nil ? "存在(\(config.sourceBookmarkBase64!.count)字符)" : "不存在 ❌")")
+            print("  - 目标 Base64 (保存后): \(config.targetBookmarkBase64 != nil ? "存在(\(config.targetBookmarkBase64!.count)字符)" : "不存在 ❌")")
             print("  - 源 bookmark (保存后): \(config.sourceBookmarkData != nil ? "存在(\(config.sourceBookmarkData!.count)字节)" : "不存在 ❌")")
             print("  - 目标 bookmark (保存后): \(config.targetBookmarkData != nil ? "存在(\(config.targetBookmarkData!.count)字节)" : "不存在 ❌")")
         } catch {
