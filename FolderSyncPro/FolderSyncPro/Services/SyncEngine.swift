@@ -321,15 +321,76 @@ final class SyncEngine: ObservableObject {
         return try await Task.detached {
             var files: [String: FileItem] = [:]
 
-            let fileURLs = try FileManager.default.recursiveContents(of: url, includeHidden: false)
-
+            // 添加详细的调试信息
             await MainActor.run {
                 self.logManager.debug(
-                    "扫描到 \(fileURLs.count) 个文件",
+                    "开始扫描目录: \(url.path) (\(location == .source ? "源" : "目标"))",
                     operation: .scan,
                     configurationId: configuration.id
                 )
             }
+
+            // 检查目录是否存在
+            let fileManager = FileManager.default
+            var isDirectory: ObjCBool = false
+            guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory) else {
+                await MainActor.run {
+                    self.logManager.error(
+                        "目录不存在: \(url.path)",
+                        operation: .error,
+                        configurationId: configuration.id
+                    )
+                }
+                throw FileManagerError.pathNotFound
+            }
+
+            guard isDirectory.boolValue else {
+                await MainActor.run {
+                    self.logManager.error(
+                        "路径不是目录: \(url.path)",
+                        operation: .error,
+                        configurationId: configuration.id
+                    )
+                }
+                throw FileManagerError.notADirectory
+            }
+
+            // 扫描文件
+            let fileURLs: [URL]
+            do {
+                fileURLs = try fileManager.recursiveContents(of: url, includeHidden: false)
+            } catch {
+                await MainActor.run {
+                    self.logManager.error(
+                        "扫描目录失败: \(error.localizedDescription)",
+                        operation: .error,
+                        configurationId: configuration.id
+                    )
+                }
+                throw error
+            }
+
+            await MainActor.run {
+                self.logManager.debug(
+                    "扫描到 \(fileURLs.count) 个文件 (位置: \(location == .source ? "源" : "目标"))",
+                    operation: .scan,
+                    configurationId: configuration.id
+                )
+            }
+
+            // 如果没有文件，记录警告
+            if fileURLs.isEmpty {
+                await MainActor.run {
+                    self.logManager.warning(
+                        "目录为空或无法访问: \(url.path)",
+                        operation: .scan,
+                        configurationId: configuration.id
+                    )
+                }
+            }
+
+            var processedCount = 0
+            var excludedCount = 0
 
             for fileURL in fileURLs {
                 // 检查是否取消
@@ -339,6 +400,7 @@ final class SyncEngine: ObservableObject {
 
                 // 检查是否应该排除
                 if configuration.shouldExclude(relativePath) {
+                    excludedCount += 1
                     continue
                 }
 
@@ -351,6 +413,7 @@ final class SyncEngine: ObservableObject {
                     }
 
                     files[relativePath] = fileItem
+                    processedCount += 1
 
                 } catch {
                     await MainActor.run {
@@ -360,6 +423,14 @@ final class SyncEngine: ObservableObject {
                         )
                     }
                 }
+            }
+
+            await MainActor.run {
+                self.logManager.debug(
+                    "扫描完成 (\(location == .source ? "源" : "目标")): 处理了 \(processedCount) 个文件, 排除了 \(excludedCount) 个文件",
+                    operation: .scan,
+                    configurationId: configuration.id
+                )
             }
 
             return files
@@ -374,6 +445,12 @@ final class SyncEngine: ObservableObject {
         targetFiles: [String: FileItem],
         configuration: SyncConfiguration
     ) -> SyncChanges {
+        logManager.debug(
+            "开始分析变化: 源文件 \(sourceFiles.count) 个, 目标文件 \(targetFiles.count) 个",
+            operation: .scan,
+            configurationId: configuration.id
+        )
+
         var changes = SyncChanges()
 
         // 检查源文件
@@ -388,14 +465,29 @@ final class SyncEngine: ObservableObject {
                             targetFile: targetFile
                         )
                         changes.conflicts.append(conflict)
+                        logManager.debug(
+                            "发现冲突: \(path)",
+                            operation: .scan,
+                            configurationId: configuration.id
+                        )
                     } else {
                         // 需要更新
                         changes.toUpdate.append(sourceFile)
+                        logManager.debug(
+                            "需要更新: \(path)",
+                            operation: .scan,
+                            configurationId: configuration.id
+                        )
                     }
                 }
             } else {
                 // 文件只在源存在 - 需要添加
                 changes.toAdd.append(sourceFile)
+                logManager.debug(
+                    "需要添加: \(path)",
+                    operation: .scan,
+                    configurationId: configuration.id
+                )
             }
         }
 
@@ -405,9 +497,20 @@ final class SyncEngine: ObservableObject {
                 if sourceFiles[path] == nil {
                     // 文件只在目标存在 - 可能需要删除
                     changes.toDelete.append(targetFile)
+                    logManager.debug(
+                        "需要删除: \(path)",
+                        operation: .scan,
+                        configurationId: configuration.id
+                    )
                 }
             }
         }
+
+        logManager.info(
+            "变化分析完成: 添加 \(changes.toAdd.count), 更新 \(changes.toUpdate.count), 删除 \(changes.toDelete.count), 冲突 \(changes.conflicts.count)",
+            operation: .scan,
+            configurationId: configuration.id
+        )
 
         return changes
     }
@@ -455,51 +558,143 @@ final class SyncEngine: ObservableObject {
         progress.totalFiles = changes.toAdd.count + changes.toUpdate.count +
                              changes.toDelete.count + changes.conflicts.count
 
+        logManager.info(
+            "开始执行同步操作: 总共 \(progress.totalFiles) 个操作",
+            operation: .copy,
+            configurationId: configuration.id
+        )
+
+        // 如果没有任何变化，直接返回
+        if progress.totalFiles == 0 {
+            logManager.info(
+                "没有需要同步的文件",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+
+            let duration = Date().timeIntervalSince(startTime)
+            return SyncResult(
+                filesAdded: 0,
+                filesModified: 0,
+                filesDeleted: 0,
+                filesSkipped: 0,
+                conflictsResolved: 0,
+                errors: [],
+                duration: duration,
+                bytesProcessed: 0
+            )
+        }
+
         // 处理新增文件
+        if !changes.toAdd.isEmpty {
+            logManager.info(
+                "开始复制新文件: \(changes.toAdd.count) 个",
+                operation: .copy,
+                configurationId: configuration.id
+            )
+        }
+
         for file in changes.toAdd {
             if isCancelled { break }
 
             do {
+                logManager.debug(
+                    "复制文件: \(file.relativePath)",
+                    operation: .copy,
+                    configurationId: configuration.id
+                )
                 try await copyFile(file, from: sourceURL, to: targetURL)
                 filesAdded += 1
                 totalBytes += file.fileSize
                 updateProgress(currentFile: file.relativePath)
             } catch {
+                logManager.error(
+                    "复制文件失败: \(file.relativePath) - \(error.localizedDescription)",
+                    operation: .error,
+                    configurationId: configuration.id,
+                    error: error
+                )
                 errors.append(error)
                 filesSkipped += 1
             }
         }
 
         // 处理更新文件
+        if !changes.toUpdate.isEmpty {
+            logManager.info(
+                "开始更新文件: \(changes.toUpdate.count) 个",
+                operation: .copy,
+                configurationId: configuration.id
+            )
+        }
+
         for file in changes.toUpdate {
             if isCancelled { break }
 
             do {
+                logManager.debug(
+                    "更新文件: \(file.relativePath)",
+                    operation: .copy,
+                    configurationId: configuration.id
+                )
                 try await copyFile(file, from: sourceURL, to: targetURL)
                 filesModified += 1
                 totalBytes += file.fileSize
                 updateProgress(currentFile: file.relativePath)
             } catch {
+                logManager.error(
+                    "更新文件失败: \(file.relativePath) - \(error.localizedDescription)",
+                    operation: .error,
+                    configurationId: configuration.id,
+                    error: error
+                )
                 errors.append(error)
                 filesSkipped += 1
             }
         }
 
         // 处理删除文件
+        if !changes.toDelete.isEmpty {
+            logManager.info(
+                "开始删除文件: \(changes.toDelete.count) 个",
+                operation: .delete,
+                configurationId: configuration.id
+            )
+        }
+
         for file in changes.toDelete {
             if isCancelled { break }
 
             do {
+                logManager.debug(
+                    "删除文件: \(file.relativePath)",
+                    operation: .delete,
+                    configurationId: configuration.id
+                )
                 try await deleteFile(file, at: targetURL)
                 filesDeleted += 1
                 updateProgress(currentFile: file.relativePath)
             } catch {
+                logManager.error(
+                    "删除文件失败: \(file.relativePath) - \(error.localizedDescription)",
+                    operation: .error,
+                    configurationId: configuration.id,
+                    error: error
+                )
                 errors.append(error)
                 filesSkipped += 1
             }
         }
 
         // 处理冲突
+        if !changes.conflicts.isEmpty {
+            logManager.info(
+                "开始解决冲突: \(changes.conflicts.count) 个",
+                operation: .conflict,
+                configurationId: configuration.id
+            )
+        }
+
         for conflict in changes.conflicts {
             if isCancelled { break }
 
@@ -507,6 +702,12 @@ final class SyncEngine: ObservableObject {
                 let resolution = await conflictResolver.resolve(
                     conflict: conflict,
                     using: configuration.conflictStrategy
+                )
+
+                logManager.debug(
+                    "解决冲突: \(conflict.relativePath) - 策略: \(configuration.conflictStrategy)",
+                    operation: .conflict,
+                    configurationId: configuration.id
                 )
 
                 try conflictResolver.executeResolution(
