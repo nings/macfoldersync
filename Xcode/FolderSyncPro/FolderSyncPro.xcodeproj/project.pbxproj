@@ -1,0 +1,578 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		3B3A767F2ED1FE5100E3FAB0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3B3A76672ED1FE5000E3FAB0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3B3A766E2ED1FE5000E3FAB0;
+			remoteInfo = FolderSyncPro;
+		};
+		3B3A76892ED1FE5100E3FAB0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3B3A76672ED1FE5000E3FAB0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3B3A766E2ED1FE5000E3FAB0;
+			remoteInfo = FolderSyncPro;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		3B3A766F2ED1FE5000E3FAB0 /* FolderSyncPro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderSyncPro.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B3A767E2ED1FE5100E3FAB0 /* FolderSyncProTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FolderSyncProTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B3A76882ED1FE5100E3FAB0 /* FolderSyncProUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FolderSyncProUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		3B3A76712ED1FE5000E3FAB0 /* FolderSyncPro */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FolderSyncPro;
+			sourceTree = "<group>";
+		};
+		3B3A76812ED1FE5100E3FAB0 /* FolderSyncProTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FolderSyncProTests;
+			sourceTree = "<group>";
+		};
+		3B3A768B2ED1FE5100E3FAB0 /* FolderSyncProUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FolderSyncProUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3B3A766C2ED1FE5000E3FAB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3B3A767B2ED1FE5100E3FAB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3B3A76852ED1FE5100E3FAB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3B3A76662ED1FE5000E3FAB0 = {
+			isa = PBXGroup;
+			children = (
+				3B3A76712ED1FE5000E3FAB0 /* FolderSyncPro */,
+				3B3A76812ED1FE5100E3FAB0 /* FolderSyncProTests */,
+				3B3A768B2ED1FE5100E3FAB0 /* FolderSyncProUITests */,
+				3B3A76702ED1FE5000E3FAB0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3B3A76702ED1FE5000E3FAB0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3B3A766F2ED1FE5000E3FAB0 /* FolderSyncPro.app */,
+				3B3A767E2ED1FE5100E3FAB0 /* FolderSyncProTests.xctest */,
+				3B3A76882ED1FE5100E3FAB0 /* FolderSyncProUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3B3A766E2ED1FE5000E3FAB0 /* FolderSyncPro */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3B3A76922ED1FE5100E3FAB0 /* Build configuration list for PBXNativeTarget "FolderSyncPro" */;
+			buildPhases = (
+				3B3A766B2ED1FE5000E3FAB0 /* Sources */,
+				3B3A766C2ED1FE5000E3FAB0 /* Frameworks */,
+				3B3A766D2ED1FE5000E3FAB0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3B3A76712ED1FE5000E3FAB0 /* FolderSyncPro */,
+			);
+			name = FolderSyncPro;
+			packageProductDependencies = (
+			);
+			productName = FolderSyncPro;
+			productReference = 3B3A766F2ED1FE5000E3FAB0 /* FolderSyncPro.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3B3A767D2ED1FE5100E3FAB0 /* FolderSyncProTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3B3A76952ED1FE5100E3FAB0 /* Build configuration list for PBXNativeTarget "FolderSyncProTests" */;
+			buildPhases = (
+				3B3A767A2ED1FE5100E3FAB0 /* Sources */,
+				3B3A767B2ED1FE5100E3FAB0 /* Frameworks */,
+				3B3A767C2ED1FE5100E3FAB0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3B3A76802ED1FE5100E3FAB0 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3B3A76812ED1FE5100E3FAB0 /* FolderSyncProTests */,
+			);
+			name = FolderSyncProTests;
+			packageProductDependencies = (
+			);
+			productName = FolderSyncProTests;
+			productReference = 3B3A767E2ED1FE5100E3FAB0 /* FolderSyncProTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		3B3A76872ED1FE5100E3FAB0 /* FolderSyncProUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3B3A76982ED1FE5100E3FAB0 /* Build configuration list for PBXNativeTarget "FolderSyncProUITests" */;
+			buildPhases = (
+				3B3A76842ED1FE5100E3FAB0 /* Sources */,
+				3B3A76852ED1FE5100E3FAB0 /* Frameworks */,
+				3B3A76862ED1FE5100E3FAB0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3B3A768A2ED1FE5100E3FAB0 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3B3A768B2ED1FE5100E3FAB0 /* FolderSyncProUITests */,
+			);
+			name = FolderSyncProUITests;
+			packageProductDependencies = (
+			);
+			productName = FolderSyncProUITests;
+			productReference = 3B3A76882ED1FE5100E3FAB0 /* FolderSyncProUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3B3A76672ED1FE5000E3FAB0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					3B3A766E2ED1FE5000E3FAB0 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+					3B3A767D2ED1FE5100E3FAB0 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = 3B3A766E2ED1FE5000E3FAB0;
+					};
+					3B3A76872ED1FE5100E3FAB0 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = 3B3A766E2ED1FE5000E3FAB0;
+					};
+				};
+			};
+			buildConfigurationList = 3B3A766A2ED1FE5000E3FAB0 /* Build configuration list for PBXProject "FolderSyncPro" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 3B3A76662ED1FE5000E3FAB0;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3B3A76702ED1FE5000E3FAB0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3B3A766E2ED1FE5000E3FAB0 /* FolderSyncPro */,
+				3B3A767D2ED1FE5100E3FAB0 /* FolderSyncProTests */,
+				3B3A76872ED1FE5100E3FAB0 /* FolderSyncProUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3B3A766D2ED1FE5000E3FAB0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3B3A767C2ED1FE5100E3FAB0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3B3A76862ED1FE5100E3FAB0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3B3A766B2ED1FE5000E3FAB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3B3A767A2ED1FE5100E3FAB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3B3A76842ED1FE5100E3FAB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3B3A76802ED1FE5100E3FAB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3B3A766E2ED1FE5000E3FAB0 /* FolderSyncPro */;
+			targetProxy = 3B3A767F2ED1FE5100E3FAB0 /* PBXContainerItemProxy */;
+		};
+		3B3A768A2ED1FE5100E3FAB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3B3A766E2ED1FE5000E3FAB0 /* FolderSyncPro */;
+			targetProxy = 3B3A76892ED1FE5100E3FAB0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3B3A76902ED1FE5100E3FAB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = D4ESW39B6H;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		3B3A76912ED1FE5100E3FAB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = D4ESW39B6H;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		3B3A76932ED1FE5100E3FAB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D4ESW39B6H;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ubmob.FolderSyncPro;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		3B3A76942ED1FE5100E3FAB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D4ESW39B6H;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ubmob.FolderSyncPro;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		3B3A76962ED1FE5100E3FAB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D4ESW39B6H;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ubmob.FolderSyncProTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FolderSyncPro.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FolderSyncPro";
+			};
+			name = Debug;
+		};
+		3B3A76972ED1FE5100E3FAB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D4ESW39B6H;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ubmob.FolderSyncProTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FolderSyncPro.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FolderSyncPro";
+			};
+			name = Release;
+		};
+		3B3A76992ED1FE5100E3FAB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D4ESW39B6H;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ubmob.FolderSyncProUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = FolderSyncPro;
+			};
+			name = Debug;
+		};
+		3B3A769A2ED1FE5100E3FAB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D4ESW39B6H;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ubmob.FolderSyncProUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = FolderSyncPro;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3B3A766A2ED1FE5000E3FAB0 /* Build configuration list for PBXProject "FolderSyncPro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3B3A76902ED1FE5100E3FAB0 /* Debug */,
+				3B3A76912ED1FE5100E3FAB0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3B3A76922ED1FE5100E3FAB0 /* Build configuration list for PBXNativeTarget "FolderSyncPro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3B3A76932ED1FE5100E3FAB0 /* Debug */,
+				3B3A76942ED1FE5100E3FAB0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3B3A76952ED1FE5100E3FAB0 /* Build configuration list for PBXNativeTarget "FolderSyncProTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3B3A76962ED1FE5100E3FAB0 /* Debug */,
+				3B3A76972ED1FE5100E3FAB0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3B3A76982ED1FE5100E3FAB0 /* Build configuration list for PBXNativeTarget "FolderSyncProUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3B3A76992ED1FE5100E3FAB0 /* Debug */,
+				3B3A769A2ED1FE5100E3FAB0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3B3A76672ED1FE5000E3FAB0 /* Project object */;
+}
