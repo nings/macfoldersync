@@ -283,9 +283,40 @@ import UserNotifications
 
 ---
 
+## 🔄 错误仍然存在？（Xcode 缓存问题）
+
+如果你看到的错误和上面已修复的一样，这是 **Xcode 缓存问题**！
+
+### 快速解决方案
+
+**运行一键修复脚本**:
+```bash
+cd /path/to/macfoldersync
+./fix-xcode-cache.sh
+```
+
+这个脚本会：
+- ✅ 关闭 Xcode
+- ✅ 拉取最新代码
+- ✅ 删除所有缓存
+- ✅ 验证修复是否到位
+- ✅ 重新打开 Xcode
+
+**手动清理步骤**:
+1. 完全退出 Xcode (`⌘ + Q`)
+2. 拉取最新代码: `git pull origin claude/implement-project-modules-012sRvPv9iPjabTbBa1qLYRB`
+3. 删除缓存: `rm -rf ~/Library/Developer/Xcode/DerivedData/FolderSyncPro-*`
+4. 重新打开 Xcode
+5. Clean Build: `⌘ + Shift + K`
+6. Rebuild: `⌘ + B`
+
+**详细指南**: 查看 [XCODE_CACHE_FIX.md](XCODE_CACHE_FIX.md)
+
+---
+
 ## 📞 仍然遇到问题？
 
-如果遇到其他编译错误:
+如果完成缓存清理后仍遇到其他编译错误:
 
 1. 复制完整错误信息
 2. 记录文件名和行号
