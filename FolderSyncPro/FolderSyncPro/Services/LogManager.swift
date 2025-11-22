@@ -26,7 +26,8 @@ final class LogManager: ObservableObject {
     private let logFileURL: URL
 
     /// 日志文件句柄
-    private var logFileHandle: FileHandle?
+    /// 注意：使用 nonisolated(unsafe) 因为已被 logQueue 串行队列保护
+    nonisolated(unsafe) private var logFileHandle: FileHandle?
 
     /// 最小日志级别
     @Published var minimumLogLevel: LogLevel = .info
@@ -38,7 +39,8 @@ final class LogManager: ObservableObject {
     @Published var isConsoleLoggingEnabled: Bool = true
 
     /// 日志缓冲区（用于批量写入）
-    private var logBuffer: [String] = []
+    /// 注意：使用 nonisolated(unsafe) 因为已被 logQueue 串行队列保护
+    nonisolated(unsafe) private var logBuffer: [String] = []
 
     /// 缓冲区大小限制
     private let bufferSizeLimit: Int = 100
@@ -213,7 +215,7 @@ final class LogManager: ObservableObject {
     }
 
     /// 刷新日志缓冲区
-    private func flushLogBuffer() {
+    nonisolated private func flushLogBuffer() {
         guard !logBuffer.isEmpty, let fileHandle = logFileHandle else { return }
 
         let content = logBuffer.joined()

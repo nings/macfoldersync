@@ -49,8 +49,8 @@ final class ConflictResolver: ObservableObject {
 
     // MARK: - Initialization
 
-    init(logManager: LogManager = .shared) {
-        self.logManager = logManager
+    init(logManager: LogManager? = nil) {
+        self.logManager = logManager ?? LogManager.shared
     }
 
     // MARK: - Conflict Resolution
