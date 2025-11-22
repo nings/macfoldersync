@@ -67,16 +67,38 @@ final class SyncConfiguration {
     /// 最后同步时间
     var lastSyncedAt: Date?
 
-    /// 源文件夹安全书签数据
-    @Attribute(.externalStorage)
-    var sourceBookmarkData: Data?
+    /// 源文件夹安全书签数据（Base64 编码的字符串）
+    var sourceBookmarkBase64: String?
 
-    /// 目标文件夹安全书签数据
-    @Attribute(.externalStorage)
-    var targetBookmarkData: Data?
+    /// 目标文件夹安全书签数据（Base64 编码的字符串）
+    var targetBookmarkBase64: String?
 
     /// 同步间隔（秒），用于定时同步
     var syncInterval: TimeInterval
+
+    // MARK: - Computed Properties
+
+    /// 源文件夹 bookmark 数据
+    var sourceBookmarkData: Data? {
+        get {
+            guard let base64 = sourceBookmarkBase64 else { return nil }
+            return Data(base64Encoded: base64)
+        }
+        set {
+            sourceBookmarkBase64 = newValue?.base64EncodedString()
+        }
+    }
+
+    /// 目标文件夹 bookmark 数据
+    var targetBookmarkData: Data? {
+        get {
+            guard let base64 = targetBookmarkBase64 else { return nil }
+            return Data(base64Encoded: base64)
+        }
+        set {
+            targetBookmarkBase64 = newValue?.base64EncodedString()
+        }
+    }
 
     /// 最大并发数
     var maxConcurrentOperations: Int
