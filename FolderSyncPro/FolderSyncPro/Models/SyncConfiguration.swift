@@ -68,9 +68,11 @@ final class SyncConfiguration {
     var lastSyncedAt: Date?
 
     /// 源文件夹安全书签数据
+    @Attribute(.externalStorage)
     var sourceBookmarkData: Data?
 
     /// 目标文件夹安全书签数据
+    @Attribute(.externalStorage)
     var targetBookmarkData: Data?
 
     /// 同步间隔（秒），用于定时同步
