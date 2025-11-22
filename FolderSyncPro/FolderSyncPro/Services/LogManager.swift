@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import Combine
 import os.log
 
 /// 日志管理器 - 负责应用程序的日志记录和管理

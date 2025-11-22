@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreServices
+import Combine
 
 /// 文件变化类型
 enum FileChangeType: String {
