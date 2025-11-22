@@ -319,8 +319,12 @@ struct AddConfigurationView: View {
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
+        panel.message = type == .source ? "选择源文件夹" : "选择目标文件夹"
+        panel.prompt = "选择"
 
         if panel.runModal() == .OK, let url = panel.url {
+            print("✅ 用户选择了文件夹: \(url.path) (类型: \(type == .source ? "源" : "目标"))")
+
             // 保存路径
             switch type {
             case .source:
@@ -332,19 +336,31 @@ struct AddConfigurationView: View {
             // 创建并保存 security-scoped bookmark
             do {
                 let bookmarkData = try FileManager.default.createSecurityScopedBookmark(for: url)
+                print("✅ 成功创建 bookmark: \(bookmarkData.count) 字节")
                 switch type {
                 case .source:
                     sourceBookmarkData = bookmarkData
+                    print("✅ 源文件夹 bookmark 已保存")
                 case .target:
                     targetBookmarkData = bookmarkData
+                    print("✅ 目标文件夹 bookmark 已保存")
                 }
             } catch {
-                print("创建 bookmark 失败: \(error)")
+                print("❌ 创建 bookmark 失败: \(error.localizedDescription)")
             }
+        } else {
+            print("⚠️ 用户取消了文件夹选择")
         }
     }
 
     private func createConfiguration() {
+        print("📝 开始创建配置...")
+        print("  - 名称: \(name)")
+        print("  - 源路径: \(sourcePath)")
+        print("  - 目标路径: \(targetPath)")
+        print("  - 源 bookmark: \(sourceBookmarkData != nil ? "存在(\(sourceBookmarkData!.count)字节)" : "不存在 ❌")")
+        print("  - 目标 bookmark: \(targetBookmarkData != nil ? "存在(\(targetBookmarkData!.count)字节)" : "不存在 ❌")")
+
         let config = SyncConfiguration(
             name: name,
             sourcePath: sourcePath,
@@ -358,8 +374,18 @@ struct AddConfigurationView: View {
         config.sourceBookmarkData = sourceBookmarkData
         config.targetBookmarkData = targetBookmarkData
 
+        print("💾 插入配置到数据库...")
         modelContext.insert(config)
-        try? modelContext.save()
+
+        do {
+            try modelContext.save()
+            print("✅ 配置已保存到数据库")
+            print("  - ID: \(config.id)")
+            print("  - 源 bookmark (保存后): \(config.sourceBookmarkData != nil ? "存在(\(config.sourceBookmarkData!.count)字节)" : "不存在 ❌")")
+            print("  - 目标 bookmark (保存后): \(config.targetBookmarkData != nil ? "存在(\(config.targetBookmarkData!.count)字节)" : "不存在 ❌")")
+        } catch {
+            print("❌ 保存配置失败: \(error.localizedDescription)")
+        }
 
         dismiss()
     }

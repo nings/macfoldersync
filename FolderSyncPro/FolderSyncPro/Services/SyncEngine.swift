@@ -167,26 +167,43 @@ final class SyncEngine: ObservableObject {
             // 恢复 security-scoped bookmarks 并开始访问
             let fileManager = FileManager.default
 
+            logManager.debug(
+                "检查 bookmark 数据: 源=\(configuration.sourceBookmarkData != nil ? "存在(\(configuration.sourceBookmarkData!.count)字节)" : "不存在"), 目标=\(configuration.targetBookmarkData != nil ? "存在(\(configuration.targetBookmarkData!.count)字节)" : "不存在")",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+
             if let sourceBookmark = configuration.sourceBookmarkData {
                 do {
                     let url = try fileManager.resolveSecurityScopedBookmark(sourceBookmark)
                     if url.startAccessingSecurityScopedResource() {
                         sourceSecurityScopedURL = url
                         logManager.debug(
-                            "已恢复源文件夹访问权限: \(url.path)",
+                            "✅ 已恢复源文件夹访问权限: \(url.path)",
                             operation: .scan,
                             configurationId: configuration.id
                         )
                     } else {
                         logManager.warning(
-                            "无法访问源文件夹: \(url.path)",
+                            "⚠️ 无法访问源文件夹: \(url.path)",
                             operation: .scan,
                             configurationId: configuration.id
                         )
                     }
                 } catch {
-                    logManager.warning("恢复源文件夹权限失败: \(error.localizedDescription)")
+                    logManager.error(
+                        "❌ 恢复源文件夹权限失败: \(error.localizedDescription)",
+                        operation: .error,
+                        configurationId: configuration.id,
+                        error: error
+                    )
                 }
+            } else {
+                logManager.warning(
+                    "⚠️ 源文件夹没有 bookmark 数据 - 请删除配置并使用'选择...'按钮重新创建",
+                    operation: .scan,
+                    configurationId: configuration.id
+                )
             }
 
             if let targetBookmark = configuration.targetBookmarkData {
@@ -195,20 +212,31 @@ final class SyncEngine: ObservableObject {
                     if url.startAccessingSecurityScopedResource() {
                         targetSecurityScopedURL = url
                         logManager.debug(
-                            "已恢复目标文件夹访问权限: \(url.path)",
+                            "✅ 已恢复目标文件夹访问权限: \(url.path)",
                             operation: .scan,
                             configurationId: configuration.id
                         )
                     } else {
                         logManager.warning(
-                            "无法访问目标文件夹: \(url.path)",
+                            "⚠️ 无法访问目标文件夹: \(url.path)",
                             operation: .scan,
                             configurationId: configuration.id
                         )
                     }
                 } catch {
-                    logManager.warning("恢复目标文件夹权限失败: \(error.localizedDescription)")
+                    logManager.error(
+                        "❌ 恢复目标文件夹权限失败: \(error.localizedDescription)",
+                        operation: .error,
+                        configurationId: configuration.id,
+                        error: error
+                    )
                 }
+            } else {
+                logManager.warning(
+                    "⚠️ 目标文件夹没有 bookmark 数据 - 请删除配置并使用'选择...'按钮重新创建",
+                    operation: .scan,
+                    configurationId: configuration.id
+                )
             }
 
             // 检查路径
