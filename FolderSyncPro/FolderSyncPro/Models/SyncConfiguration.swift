@@ -152,17 +152,6 @@ final class SyncConfiguration {
     }
 }
 
-// MARK: - Hashable & Equatable
-extension SyncConfiguration: Hashable, Equatable {
-    static func == (lhs: SyncConfiguration, rhs: SyncConfiguration) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
-
 // MARK: - CustomStringConvertible
 extension SyncConfiguration: CustomStringConvertible {
     var description: String {

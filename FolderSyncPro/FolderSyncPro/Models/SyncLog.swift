@@ -219,17 +219,6 @@ final class SyncLog {
     }
 }
 
-// MARK: - Hashable & Equatable
-extension SyncLog: Hashable, Equatable {
-    static func == (lhs: SyncLog, rhs: SyncLog) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
-
 // MARK: - CustomStringConvertible
 extension SyncLog: CustomStringConvertible {
     var description: String {

@@ -100,10 +100,10 @@ final class SyncEngine: ObservableObject {
     // MARK: - Initialization
 
     init(
-        logManager: LogManager = .shared,
+        logManager: LogManager? = nil,
         conflictResolver: ConflictResolver
     ) {
-        self.logManager = logManager
+        self.logManager = logManager ?? LogManager.shared
         self.conflictResolver = conflictResolver
     }
 
@@ -167,9 +167,10 @@ final class SyncEngine: ObservableObject {
             status = .completed
             configuration.updateLastSyncTime()
 
-            logManager.info(
-                "同步完成: \(result.summary)",
+            logManager.log(
+                level: .info,
                 operation: .scan,
+                message: "同步完成: \(result.summary)",
                 configurationId: configuration.id,
                 filesProcessed: result.totalFilesProcessed,
                 bytesProcessed: result.bytesProcessed
