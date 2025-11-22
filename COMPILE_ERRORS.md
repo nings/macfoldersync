@@ -410,3 +410,38 @@ cd /path/to/macfoldersync
 **最新修复**: FileMonitor.swift Swift 6 并发问题（5 个错误）
 **最后更新**: 2025-11-22
 **提交**: 8beba7e
+
+## 📝 补充说明
+
+### C 函数指针问题的深入解释
+
+**问题**: FileMonitor.swift:167
+```
+A C function pointer can only be formed from a reference to a 'func' or a literal closure
+```
+
+**技术原因**:
+- FSEventStreamCreate 是 C API，需要 C 函数指针
+- Swift 无法直接将函数引用转换为 C 函数指针
+- 即使函数是 fileprivate 或 public 也不行
+
+**解决方案**:
+使用闭包字面量（literal closure）包装函数调用：
+```swift
+// ❌ 不工作
+FSEventStreamCreate(..., eventStreamCallback, ...)
+
+// ✅ 工作
+FSEventStreamCreate(..., 
+    { (streamRef, info, numEvents, paths, flags, ids) in
+        eventStreamCallback(streamRef, info, numEvents, paths, flags, ids)
+    }, 
+    ...
+)
+```
+
+**原理**:
+- Swift 可以将闭包字面量转换为 C 函数指针
+- 闭包内部调用我们的实际函数
+- 这是 Swift 与 C API 互操作的标准做法
+
