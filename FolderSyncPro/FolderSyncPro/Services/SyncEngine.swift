@@ -317,124 +317,123 @@ final class SyncEngine: ObservableObject {
         location: FileLocation,
         configuration: SyncConfiguration
     ) async throws -> [String: FileItem] {
-        // 在后台线程执行文件扫描（避免阻塞主线程）
-        return try await Task.detached {
-            var files: [String: FileItem] = [:]
+        // 添加详细的调试信息
+        logManager.debug(
+            "开始扫描目录: \(url.path) (\(location == .source ? "源" : "目标"))",
+            operation: .scan,
+            configurationId: configuration.id
+        )
 
-            // 添加详细的调试信息
-            await MainActor.run {
-                self.logManager.debug(
-                    "开始扫描目录: \(url.path) (\(location == .source ? "源" : "目标"))",
-                    operation: .scan,
-                    configurationId: configuration.id
-                )
-            }
+        // 检查目录是否存在
+        let fileManager = FileManager.default
+        var isDirectory: ObjCBool = false
+        guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory) else {
+            logManager.error(
+                "目录不存在: \(url.path)",
+                operation: .error,
+                configurationId: configuration.id
+            )
+            throw FileManagerError.pathNotFound
+        }
 
-            // 检查目录是否存在
-            let fileManager = FileManager.default
-            var isDirectory: ObjCBool = false
-            guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory) else {
-                await MainActor.run {
-                    self.logManager.error(
-                        "目录不存在: \(url.path)",
-                        operation: .error,
-                        configurationId: configuration.id
-                    )
-                }
-                throw FileManagerError.pathNotFound
-            }
+        guard isDirectory.boolValue else {
+            logManager.error(
+                "路径不是目录: \(url.path)",
+                operation: .error,
+                configurationId: configuration.id
+            )
+            throw FileManagerError.notADirectory
+        }
 
-            guard isDirectory.boolValue else {
-                await MainActor.run {
-                    self.logManager.error(
-                        "路径不是目录: \(url.path)",
-                        operation: .error,
-                        configurationId: configuration.id
-                    )
-                }
-                throw FileManagerError.notADirectory
-            }
-
-            // 扫描文件
-            let fileURLs: [URL]
-            do {
-                fileURLs = try fileManager.recursiveContents(of: url, includeHidden: false)
-            } catch {
-                await MainActor.run {
-                    self.logManager.error(
-                        "扫描目录失败: \(error.localizedDescription)",
-                        operation: .error,
-                        configurationId: configuration.id
-                    )
-                }
-                throw error
-            }
-
-            await MainActor.run {
-                self.logManager.debug(
-                    "扫描到 \(fileURLs.count) 个文件 (位置: \(location == .source ? "源" : "目标"))",
-                    operation: .scan,
-                    configurationId: configuration.id
-                )
-            }
-
-            // 如果没有文件，记录警告
-            if fileURLs.isEmpty {
-                await MainActor.run {
-                    self.logManager.warning(
-                        "目录为空或无法访问: \(url.path)",
-                        operation: .scan,
-                        configurationId: configuration.id
-                    )
-                }
-            }
-
-            var processedCount = 0
-            var excludedCount = 0
-
-            for fileURL in fileURLs {
-                // 检查是否取消
-                if await self.isCancelled { break }
-
-                let relativePath = fileURL.path.replacingOccurrences(of: url.path + "/", with: "")
-
-                // 检查是否应该排除
-                if configuration.shouldExclude(relativePath) {
-                    excludedCount += 1
-                    continue
-                }
-
+        // 在后台线程扫描文件列表（避免阻塞主线程）
+        let fileURLs = try await withCheckedThrowingContinuation { continuation in
+            Task.detached {
                 do {
-                    var fileItem = try FileItem.from(url: fileURL, baseURL: url, location: location)
-
-                    // 如果需要验证完整性，计算校验和
-                    if configuration.verifyFileIntegrity && !fileItem.isDirectory {
-                        try fileItem.calculateSHA256()
-                    }
-
-                    files[relativePath] = fileItem
-                    processedCount += 1
-
+                    let urls = try fileManager.recursiveContents(of: url, includeHidden: false)
+                    continuation.resume(returning: urls)
                 } catch {
-                    await MainActor.run {
-                        self.logManager.warning(
-                            "跳过文件: \(relativePath) - \(error.localizedDescription)",
-                            operation: .scan
-                        )
-                    }
+                    continuation.resume(throwing: error)
                 }
             }
+        }
 
-            await MainActor.run {
-                self.logManager.debug(
-                    "扫描完成 (\(location == .source ? "源" : "目标")): 处理了 \(processedCount) 个文件, 排除了 \(excludedCount) 个文件",
-                    operation: .scan,
-                    configurationId: configuration.id
-                )
+        logManager.debug(
+            "扫描到 \(fileURLs.count) 个文件 (位置: \(location == .source ? "源" : "目标"))",
+            operation: .scan,
+            configurationId: configuration.id
+        )
+
+        // 如果没有文件，记录警告
+        if fileURLs.isEmpty {
+            logManager.warning(
+                "目录为空或无法访问: \(url.path)",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+        }
+
+        var files: [String: FileItem] = [:]
+        var processedCount = 0
+        var excludedCount = 0
+
+        // 处理文件列表
+        for fileURL in fileURLs {
+            // 检查是否取消
+            if isCancelled { break }
+
+            let relativePath = fileURL.path.replacingOccurrences(of: url.path + "/", with: "")
+
+            // 检查是否应该排除
+            if configuration.shouldExclude(relativePath) {
+                excludedCount += 1
+                continue
             }
 
-            return files
-        }.value
+            do {
+                // 在后台读取文件属性
+                var fileItem = try await withCheckedThrowingContinuation { continuation in
+                    Task.detached {
+                        do {
+                            let item = try FileItem.from(url: fileURL, baseURL: url, location: location)
+                            continuation.resume(returning: item)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    }
+                }
+
+                // 如果需要验证完整性，计算校验和
+                if configuration.verifyFileIntegrity && !fileItem.isDirectory {
+                    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                        Task.detached {
+                            do {
+                                try fileItem.calculateSHA256()
+                                continuation.resume()
+                            } catch {
+                                continuation.resume(throwing: error)
+                            }
+                        }
+                    }
+                }
+
+                files[relativePath] = fileItem
+                processedCount += 1
+
+            } catch {
+                logManager.warning(
+                    "跳过文件: \(relativePath) - \(error.localizedDescription)",
+                    operation: .scan
+                )
+            }
+        }
+
+        logManager.debug(
+            "扫描完成 (\(location == .source ? "源" : "目标")): 处理了 \(processedCount) 个文件, 排除了 \(excludedCount) 个文件",
+            operation: .scan,
+            configurationId: configuration.id
+        )
+
+        return files
     }
 
     // MARK: - Change Analysis
@@ -690,7 +689,7 @@ final class SyncEngine: ObservableObject {
         if !changes.conflicts.isEmpty {
             logManager.info(
                 "开始解决冲突: \(changes.conflicts.count) 个",
-                operation: .conflict,
+                operation: .conflictResolved,
                 configurationId: configuration.id
             )
         }
@@ -706,7 +705,7 @@ final class SyncEngine: ObservableObject {
 
                 logManager.debug(
                     "解决冲突: \(conflict.relativePath) - 策略: \(configuration.conflictStrategy)",
-                    operation: .conflict,
+                    operation: .conflictResolved,
                     configurationId: configuration.id
                 )
 
