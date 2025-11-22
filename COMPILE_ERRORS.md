@@ -45,7 +45,45 @@ Extra arguments at positions #4, #5 in call
 **已修复**: 添加了 AccentColor.colorset。
 - ✅ Resources/Assets.xcassets/AccentColor.colorset/
 
-### 5. Combine 框架导入错误 ✅
+### 5. UniformTypeIdentifiers 导入缺失 ✅
+
+**错误信息**:
+```
+Static property 'plainText' is not available due to missing import of defining module 'UniformTypeIdentifiers'
+```
+
+**原因**: `.plainText` 是 `UTType` 类型，需要导入 UniformTypeIdentifiers 模块。
+
+**已修复**: 添加了导入语句。
+- ✅ Views/PreferencesView.swift: `import UniformTypeIdentifiers`
+
+### 6. Swift 6 并发: ObservableObject 协议一致性 ✅
+
+**错误信息**:
+```
+Type 'SyncEngine' does not conform to protocol 'ObservableObject'
+Type 'FileMonitor' does not conform to protocol 'ObservableObject'
+```
+
+**原因**:
+- Swift 6 严格并发检查模式下，`@MainActor` 类使用 `ObservableObject` 需要特殊处理
+- Combine 框架尚未完全适配 Swift 6 并发模型
+- 标准的 `import Combine` 在 Swift 6 中可能导致协议一致性检查失败
+
+**已修复**: 使用 `@preconcurrency import Combine`
+- ✅ Services/SyncEngine.swift
+- ✅ Services/FileMonitor.swift
+- ✅ Services/ConflictResolver.swift
+- ✅ Services/LogManager.swift
+
+**解释**:
+`@preconcurrency` 告诉编译器：
+- 这个模块（Combine）尚未完全适配 Swift 6 并发
+- 暂时放宽某些并发安全检查
+- 允许 `@MainActor` 类正确遵循 `ObservableObject` 协议
+- 这是 Apple 推荐的过渡期做法
+
+### 7. Combine 框架导入错误 ✅
 
 **错误信息**:
 ```
@@ -324,5 +362,7 @@ cd /path/to/macfoldersync
 
 ---
 
-**当前状态**: ✅ 所有已知编译错误已修复
+**当前状态**: ✅ 所有已知编译错误已修复（共 7 类错误）
+**最新修复**: Swift 6 并发问题 (ObservableObject + UniformTypeIdentifiers)
 **最后更新**: 2025-11-22
+**提交**: bc17b0e
