@@ -144,8 +144,20 @@ final class SyncEngine: ObservableObject {
                 throw SyncError.invalidConfiguration
             }
 
+            logManager.debug(
+                "配置验证通过: 源=\(configuration.sourcePath), 目标=\(configuration.targetPath)",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+
             // 检查路径
             try validatePaths(configuration: configuration)
+
+            logManager.debug(
+                "路径验证通过",
+                operation: .scan,
+                configurationId: configuration.id
+            )
 
             // 扫描文件
             let (sourceFiles, targetFiles) = try await scanFiles(configuration: configuration)
@@ -305,41 +317,53 @@ final class SyncEngine: ObservableObject {
         location: FileLocation,
         configuration: SyncConfiguration
     ) async throws -> [String: FileItem] {
-        var files: [String: FileItem] = [:]
+        // 在后台线程执行文件扫描（避免阻塞主线程）
+        return try await Task.detached {
+            var files: [String: FileItem] = [:]
 
-        let fileURLs = try FileManager.default.recursiveContents(of: url, includeHidden: false)
+            let fileURLs = try FileManager.default.recursiveContents(of: url, includeHidden: false)
 
-        for fileURL in fileURLs {
-            // 检查是否取消
-            if isCancelled { break }
-
-            let relativePath = fileURL.path.relativePath(from: url.path)
-
-            // 检查是否应该排除
-            if configuration.shouldExclude(relativePath) {
-                continue
-            }
-
-            do {
-                var fileItem = try FileItem.from(url: fileURL, baseURL: url, location: location)
-
-                // 如果需要验证完整性，计算校验和
-                if configuration.verifyFileIntegrity && !fileItem.isDirectory {
-                    try fileItem.calculateSHA256()
-                }
-
-                files[relativePath] = fileItem
-
-            } catch {
-                logManager.warning(
-                    "扫描文件失败: \(relativePath)",
+            await MainActor.run {
+                self.logManager.debug(
+                    "扫描到 \(fileURLs.count) 个文件",
                     operation: .scan,
                     configurationId: configuration.id
                 )
             }
-        }
 
-        return files
+            for fileURL in fileURLs {
+                // 检查是否取消
+                if await self.isCancelled { break }
+
+                let relativePath = fileURL.path.replacingOccurrences(of: url.path + "/", with: "")
+
+                // 检查是否应该排除
+                if configuration.shouldExclude(relativePath) {
+                    continue
+                }
+
+                do {
+                    var fileItem = try FileItem.from(url: fileURL, baseURL: url, location: location)
+
+                    // 如果需要验证完整性，计算校验和
+                    if configuration.verifyFileIntegrity && !fileItem.isDirectory {
+                        try fileItem.calculateSHA256()
+                    }
+
+                    files[relativePath] = fileItem
+
+                } catch {
+                    await MainActor.run {
+                        self.logManager.warning(
+                            "跳过文件: \(relativePath) - \(error.localizedDescription)",
+                            operation: .scan
+                        )
+                    }
+                }
+            }
+
+            return files
+        }.value
     }
 
     // MARK: - Change Analysis
