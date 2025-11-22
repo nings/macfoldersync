@@ -32,13 +32,19 @@ Main actor-isolated static property 'shared' can not be referenced from a noniso
 
 **错误信息**:
 ```
-Extra arguments at positions #4, #5 in call
+Extra arguments at positions #5, #6 in call
 ```
+(SyncEngine.swift:170)
 
-**原因**: `info()` 方法签名不支持额外参数。
+**原因**: `LogManager.log()` 方法签名缺少 `filesProcessed` 和 `bytesProcessed` 参数。
 
-**已修复**: 改用 `log()` 方法。
-- ✅ Services/SyncEngine.swift
+**已修复**: 扩展 `LogManager.log()` 方法，添加三个可选参数：
+- ✅ Services/LogManager.swift
+  - 添加 `duration: TimeInterval? = nil`
+  - 添加 `filesProcessed: Int? = nil`
+  - 添加 `bytesProcessed: Int64? = nil`
+
+这些参数现在会传递给 `SyncLog` 初始化器，使 `log()` 方法完整支持所有 SyncLog 字段。
 
 ### 4. 缺少 AccentColor 资源 ✅
 
@@ -362,7 +368,7 @@ cd /path/to/macfoldersync
 
 ---
 
-**当前状态**: ✅ 所有已知编译错误已修复（共 7 类错误）
-**最新修复**: Swift 6 并发问题 (ObservableObject + UniformTypeIdentifiers)
+**当前状态**: ✅ 所有已知编译错误已修复（共 8 类错误）
+**最新修复**: LogManager.log() 方法参数扩展
 **最后更新**: 2025-11-22
-**提交**: bc17b0e
+**提交**: b5016a9
