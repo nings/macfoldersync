@@ -57,11 +57,13 @@ Extra arguments at positions #5, #6 in call
 ```
 Static property 'plainText' is not available due to missing import of defining module 'UniformTypeIdentifiers'
 ```
+(PreferencesView.swift:317, LogView.swift:240)
 
 **原因**: `.plainText` 是 `UTType` 类型，需要导入 UniformTypeIdentifiers 模块。
 
 **已修复**: 添加了导入语句。
 - ✅ Views/PreferencesView.swift: `import UniformTypeIdentifiers`
+- ✅ Views/LogView.swift: `import UniformTypeIdentifiers`
 
 ### 6. Swift 6 并发: ObservableObject 协议一致性 ✅
 
@@ -369,6 +371,6 @@ cd /path/to/macfoldersync
 ---
 
 **当前状态**: ✅ 所有已知编译错误已修复（共 8 类错误）
-**最新修复**: LogManager.log() 方法参数扩展
+**最新修复**: LogView.swift UniformTypeIdentifiers 导入
 **最后更新**: 2025-11-22
-**提交**: b5016a9
+**提交**: 401d448
