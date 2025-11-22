@@ -37,7 +37,7 @@ final class FileMonitor: ObservableObject {
     private var monitoredPaths: Set<String> = []
 
     /// FSEventStream 引用
-    private var eventStream: FSEventStreamRef?
+    nonisolated(unsafe) private var eventStream: FSEventStreamRef?
 
     /// 事件回调闭包
     private var eventCallback: ((FileChangeEvent) -> Void)?
@@ -52,13 +52,14 @@ final class FileMonitor: ObservableObject {
     @Published var recentEvents: [FileChangeEvent] = []
 
     /// 事件缓冲区（用于事件合并）
-    private var eventBuffer: [String: FileChangeEvent] = [:]
+    /// 注意：使用 nonisolated(unsafe)，因为访问已通过 Timer 在主线程序列化
+    nonisolated(unsafe) private var eventBuffer: [String: FileChangeEvent] = [:]
 
     /// 事件处理队列
     private let eventQueue = DispatchQueue(label: "com.foldersyncpro.filemonitor", qos: .utility)
 
     /// 事件延迟定时器
-    private var eventTimer: Timer?
+    nonisolated(unsafe) private var eventTimer: Timer?
 
     /// 事件延迟时间（秒）
     private let eventDelay: TimeInterval = 1.0
@@ -68,8 +69,8 @@ final class FileMonitor: ObservableObject {
 
     // MARK: - Initialization
 
-    init(logManager: LogManager = .shared) {
-        self.logManager = logManager
+    init(logManager: LogManager? = nil) {
+        self.logManager = logManager ?? LogManager.shared
     }
 
     // MARK: - Monitoring Control
@@ -192,7 +193,7 @@ final class FileMonitor: ObservableObject {
     }
 
     /// 销毁 FSEventStream
-    private func destroyEventStream() {
+    nonisolated private func destroyEventStream() {
         guard let stream = eventStream else { return }
 
         FSEventStreamStop(stream)
@@ -204,7 +205,7 @@ final class FileMonitor: ObservableObject {
     // MARK: - Event Processing
 
     /// 处理文件系统事件
-    private func processEvents(paths: [String], flags: [FSEventStreamEventFlags]) {
+    fileprivate func processEvents(paths: [String], flags: [FSEventStreamEventFlags]) {
         for (path, flag) in zip(paths, flags) {
             let changeType = determineChangeType(from: flag)
 
@@ -231,7 +232,7 @@ final class FileMonitor: ObservableObject {
     }
 
     /// 刷新事件缓冲区
-    private func flushEventBuffer() {
+    nonisolated private func flushEventBuffer() {
         guard !eventBuffer.isEmpty else { return }
 
         let events = Array(eventBuffer.values)
@@ -319,12 +320,13 @@ final class FileMonitor: ObservableObject {
     // MARK: - Cleanup
 
     deinit {
-        stopMonitoring()
+        // 直接销毁 event stream，不调用 stopMonitoring（避免 MainActor 隔离问题）
+        destroyEventStream()
     }
 }
 
 // MARK: - FSEvents Callback
-private func eventStreamCallback(
+fileprivate func eventStreamCallback(
     _ streamRef: ConstFSEventStreamRef,
     _ clientCallBackInfo: UnsafeMutableRawPointer?,
     _ numEvents: Int,
