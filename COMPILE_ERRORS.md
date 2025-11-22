@@ -24,8 +24,10 @@ Main actor-isolated static property 'shared' can not be referenced from a noniso
 Main actor-isolated property 'logBuffer' can not be mutated from a Sendable closure
 Main actor-isolated property 'logBuffer' can not be referenced from a Sendable closure
 Call to main actor-isolated instance method 'flushLogBuffer()' in a synchronous nonisolated context
+A C function pointer can only be formed from a reference to a 'func' or a literal closure
+'processEvents' is inaccessible due to 'private' protection level
 ```
-(ConflictResolver.swift:52, LogManager.swift:203, 206, 207, 410)
+(ConflictResolver.swift:52, LogManager.swift:203, 206, 207, 410, FileMonitor.swift:71, 166, 228, 322, 342)
 
 **原因**: Swift 6 语言模式下的并发安全要求。
 
@@ -42,9 +44,24 @@ Call to main actor-isolated instance method 'flushLogBuffer()' in a synchronous 
    - `nonisolated private func flushLogBuffer()`
    - 这些是安全的，因为已被 `logQueue` 串行队列保护
 
+3. **FileMonitor 并发安全** - 多重修复
+   - ✅ Services/FileMonitor.swift
+   - `init(logManager: LogManager? = nil)` - 可选参数
+   - `nonisolated(unsafe) private var eventStream` - FSEventStream 引用
+   - `nonisolated(unsafe) private var eventBuffer` - 事件缓冲区
+   - `nonisolated(unsafe) private var eventTimer` - 延迟定时器
+   - `nonisolated private func flushEventBuffer()` - 缓冲区刷新
+   - `nonisolated private func destroyEventStream()` - 清理 Stream
+   - `fileprivate func processEvents()` - 允许顶层函数调用
+   - `fileprivate func eventStreamCallback()` - C 函数指针
+   - deinit 直接调用 destroyEventStream（不调用 stopMonitoring）
+
 **技术说明**:
 - `nonisolated(unsafe)` 用于已有其他同步机制（如串行队列）保护的属性
 - logQueue 确保了对 logBuffer 和 logFileHandle 的线程安全访问
+- Timer 在主线程序列化访问 eventBuffer，是安全的
+- FSEventStream 的清理可以在 deinit 中安全进行
+- C 函数指针需要 fileprivate 或更高的访问级别
 - 这是 Swift 6 并发模型处理遗留代码的推荐做法
 
 ### 3. LogManager 方法参数错误 ✅
@@ -390,6 +407,6 @@ cd /path/to/macfoldersync
 ---
 
 **当前状态**: ✅ 所有已知编译错误已修复（共 8 类错误）
-**最新修复**: Swift 6 MainActor 并发隔离问题 (nonisolated(unsafe))
+**最新修复**: FileMonitor.swift Swift 6 并发问题（5 个错误）
 **最后更新**: 2025-11-22
-**提交**: 94227b1
+**提交**: 8beba7e
