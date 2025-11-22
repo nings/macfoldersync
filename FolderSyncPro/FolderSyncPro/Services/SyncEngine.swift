@@ -138,6 +138,16 @@ final class SyncEngine: ObservableObject {
             configurationId: configuration.id
         )
 
+        // 保存 security-scoped URLs 以在整个同步期间保持权限
+        var sourceSecurityScopedURL: URL?
+        var targetSecurityScopedURL: URL?
+
+        // 确保在同步结束时释放权限
+        defer {
+            sourceSecurityScopedURL?.stopAccessingSecurityScopedResource()
+            targetSecurityScopedURL?.stopAccessingSecurityScopedResource()
+        }
+
         do {
             // 验证配置
             guard configuration.isValid() else {
@@ -149,6 +159,53 @@ final class SyncEngine: ObservableObject {
                 operation: .scan,
                 configurationId: configuration.id
             )
+
+            // 恢复 security-scoped bookmarks 并开始访问
+            let fileManager = FileManager.default
+
+            if let sourceBookmark = configuration.sourceBookmarkData {
+                do {
+                    let url = try fileManager.resolveSecurityScopedBookmark(sourceBookmark)
+                    if url.startAccessingSecurityScopedResource() {
+                        sourceSecurityScopedURL = url
+                        logManager.debug(
+                            "已恢复源文件夹访问权限: \(url.path)",
+                            operation: .scan,
+                            configurationId: configuration.id
+                        )
+                    } else {
+                        logManager.warning(
+                            "无法访问源文件夹: \(url.path)",
+                            operation: .scan,
+                            configurationId: configuration.id
+                        )
+                    }
+                } catch {
+                    logManager.warning("恢复源文件夹权限失败: \(error.localizedDescription)")
+                }
+            }
+
+            if let targetBookmark = configuration.targetBookmarkData {
+                do {
+                    let url = try fileManager.resolveSecurityScopedBookmark(targetBookmark)
+                    if url.startAccessingSecurityScopedResource() {
+                        targetSecurityScopedURL = url
+                        logManager.debug(
+                            "已恢复目标文件夹访问权限: \(url.path)",
+                            operation: .scan,
+                            configurationId: configuration.id
+                        )
+                    } else {
+                        logManager.warning(
+                            "无法访问目标文件夹: \(url.path)",
+                            operation: .scan,
+                            configurationId: configuration.id
+                        )
+                    }
+                } catch {
+                    logManager.warning("恢复目标文件夹权限失败: \(error.localizedDescription)")
+                }
+            }
 
             // 检查路径
             try validatePaths(configuration: configuration)
@@ -242,27 +299,6 @@ final class SyncEngine: ObservableObject {
     /// 验证路径
     private func validatePaths(configuration: SyncConfiguration) throws {
         let fileManager = FileManager.default
-
-        // 尝试使用 security-scoped bookmark 恢复访问权限
-        if let sourceBookmark = configuration.sourceBookmarkData {
-            do {
-                let sourceURL = try fileManager.resolveSecurityScopedBookmark(sourceBookmark)
-                // 开始访问 security-scoped resource
-                _ = sourceURL.startAccessingSecurityScopedResource()
-            } catch {
-                logManager.warning("恢复源文件夹权限失败: \(error.localizedDescription)")
-            }
-        }
-
-        if let targetBookmark = configuration.targetBookmarkData {
-            do {
-                let targetURL = try fileManager.resolveSecurityScopedBookmark(targetBookmark)
-                // 开始访问 security-scoped resource
-                _ = targetURL.startAccessingSecurityScopedResource()
-            } catch {
-                logManager.warning("恢复目标文件夹权限失败: \(error.localizedDescription)")
-            }
-        }
 
         // 检查源路径
         guard fileManager.fileExists(atPath: configuration.sourcePath) else {
