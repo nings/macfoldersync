@@ -138,14 +138,30 @@ final class SyncEngine: ObservableObject {
             configurationId: configuration.id
         )
 
-        // 保存 security-scoped URLs 以在整个同步期间保持权限
-        var sourceSecurityScopedURL: URL?
-        var targetSecurityScopedURL: URL?
-
-        // 确保在同步结束时释放权限并重置状态
+        // 在开始时获取和开始访问 security-scoped URLs
+        let fileManager = FileManager.default
+        var sourceURL: URL?
+        var targetURL: URL?
+        
         defer {
-            sourceSecurityScopedURL?.stopAccessingSecurityScopedResource()
-            targetSecurityScopedURL?.stopAccessingSecurityScopedResource()
+            // 在最外层的 defer 中停止访问
+            if let source = sourceURL {
+                logManager.debug(
+                    "停止源文件夹 security-scoped 访问",
+                    operation: .scan,
+                    configurationId: configuration.id
+                )
+                source.stopAccessingSecurityScopedResource()
+            }
+            if let target = targetURL {
+                logManager.debug(
+                    "停止目标文件夹 security-scoped 访问",
+                    operation: .scan,
+                    configurationId: configuration.id
+                )
+                target.stopAccessingSecurityScopedResource()
+            }
+            
             // 重置状态为 idle，以便下次可以再次同步
             if status != .idle {
                 status = .idle
@@ -164,84 +180,98 @@ final class SyncEngine: ObservableObject {
                 configurationId: configuration.id
             )
 
-            // 恢复 security-scoped bookmarks 并开始访问
-            let fileManager = FileManager.default
-
-            logManager.debug(
-                "检查 Base64 字符串: 源=\(configuration.sourceBookmarkBase64 != nil ? "存在(\(configuration.sourceBookmarkBase64!.count)字符)" : "不存在"), 目标=\(configuration.targetBookmarkBase64 != nil ? "存在(\(configuration.targetBookmarkBase64!.count)字符)" : "不存在")",
-                operation: .scan,
-                configurationId: configuration.id
-            )
-
+            // 检查 bookmark 数据
             logManager.debug(
                 "检查 bookmark 数据: 源=\(configuration.sourceBookmarkData != nil ? "存在(\(configuration.sourceBookmarkData!.count)字节)" : "不存在"), 目标=\(configuration.targetBookmarkData != nil ? "存在(\(configuration.targetBookmarkData!.count)字节)" : "不存在")",
                 operation: .scan,
                 configurationId: configuration.id
             )
 
-            if let sourceBookmark = configuration.sourceBookmarkData {
-                do {
-                    let url = try fileManager.resolveSecurityScopedBookmark(sourceBookmark)
-                    if url.startAccessingSecurityScopedResource() {
-                        sourceSecurityScopedURL = url
-                        logManager.debug(
-                            "✅ 已恢复源文件夹访问权限: \(url.path)",
-                            operation: .scan,
-                            configurationId: configuration.id
-                        )
-                    } else {
-                        logManager.warning(
-                            "⚠️ 无法访问源文件夹: \(url.path)",
-                            operation: .scan,
-                            configurationId: configuration.id
-                        )
-                    }
-                } catch {
-                    logManager.error(
-                        "❌ 恢复源文件夹权限失败: \(error.localizedDescription)",
-                        operation: .error,
-                        configurationId: configuration.id,
-                        error: error
-                    )
-                }
-            } else {
+            // 验证 bookmarks 存在
+            guard let sourceBookmark = configuration.sourceBookmarkData,
+                  let targetBookmark = configuration.targetBookmarkData else {
                 logManager.warning(
-                    "⚠️ 源文件夹没有 bookmark 数据 - 请删除配置并使用'选择...'按钮重新创建",
+                    "⚠️ 缺少 bookmark 数据 - 请删除配置并使用'选择...'按钮重新创建",
                     operation: .scan,
                     configurationId: configuration.id
                 )
+                throw SyncError.invalidConfiguration
             }
-
-            if let targetBookmark = configuration.targetBookmarkData {
-                do {
-                    let url = try fileManager.resolveSecurityScopedBookmark(targetBookmark)
-                    if url.startAccessingSecurityScopedResource() {
-                        targetSecurityScopedURL = url
-                        logManager.debug(
-                            "✅ 已恢复目标文件夹访问权限: \(url.path)",
-                            operation: .scan,
-                            configurationId: configuration.id
-                        )
-                    } else {
-                        logManager.warning(
-                            "⚠️ 无法访问目标文件夹: \(url.path)",
-                            operation: .scan,
-                            configurationId: configuration.id
-                        )
-                    }
-                } catch {
-                    logManager.error(
-                        "❌ 恢复目标文件夹权限失败: \(error.localizedDescription)",
-                        operation: .error,
-                        configurationId: configuration.id,
-                        error: error
-                    )
-                }
-            } else {
-                logManager.warning(
-                    "⚠️ 目标文件夹没有 bookmark 数据 - 请删除配置并使用'选择...'按钮重新创建",
+            
+            // 解析 bookmarks
+            sourceURL = try fileManager.resolveSecurityScopedBookmark(sourceBookmark)
+            targetURL = try fileManager.resolveSecurityScopedBookmark(targetBookmark)
+            
+            logManager.debug(
+                "解析 bookmarks: 源=\(sourceURL?.path ?? "nil"), 目标=\(targetURL?.path ?? "nil")",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+            
+            // **关键修复**：验证 bookmark 是否是 security-scoped
+            logManager.debug(
+                "Bookmark 类型检查: 源长度=\(sourceBookmark.count), 目标长度=\(targetBookmark.count)",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+            
+            // 开始访问 security-scoped resources
+            guard let source = sourceURL, let target = targetURL else {
+                throw SyncError.invalidConfiguration
+            }
+            
+            // 在开始访问前检查路径是否存在
+            let sourceExistsBefore = fileManager.fileExists(atPath: source.path)
+            let targetExistsBefore = fileManager.fileExists(atPath: target.path)
+            
+            logManager.debug(
+                "访问前路径检查: 源存在=\(sourceExistsBefore), 目标存在=\(targetExistsBefore)",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+            
+            let sourceAccess = source.startAccessingSecurityScopedResource()
+            let targetAccess = target.startAccessingSecurityScopedResource()
+            
+            logManager.debug(
+                "Security-scoped 访问: 源=\(sourceAccess ? "成功" : "失败"), 目标=\(targetAccess ? "成功" : "失败")",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+            
+            // 在开始访问后再次检查路径
+            let sourceExistsAfter = fileManager.fileExists(atPath: source.path)
+            let targetExistsAfter = fileManager.fileExists(atPath: target.path)
+            
+            logManager.debug(
+                "访问后路径检查: 源存在=\(sourceExistsAfter), 目标存在=\(targetExistsAfter)",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+            
+            guard sourceAccess, targetAccess else {
+                logManager.error(
+                    "无法获取 security-scoped 访问权限",
+                    operation: .error,
+                    configurationId: configuration.id
+                )
+                throw SyncError.insufficientPermissions
+            }
+            
+            // 尝试列出目标目录内容
+            do {
+                let targetContents = try fileManager.contentsOfDirectory(atPath: target.path)
+                logManager.debug(
+                    "目标目录内容: \(targetContents.count) 项 - \(targetContents.joined(separator: ", "))",
                     operation: .scan,
                     configurationId: configuration.id
+                )
+            } catch {
+                logManager.error(
+                    "无法列出目标目录内容: \(error.localizedDescription)",
+                    operation: .error,
+                    configurationId: configuration.id,
+                    error: error
                 )
             }
 
@@ -254,8 +284,8 @@ final class SyncEngine: ObservableObject {
                 configurationId: configuration.id
             )
 
-            // 扫描文件
-            let (sourceFiles, targetFiles) = try await scanFiles(configuration: configuration)
+            // 扫描文件（传入 security-scoped URLs）
+            let (sourceFiles, targetFiles) = try await scanFiles(sourceURL: source, targetURL: target, configuration: configuration)
 
             // 分析差异
             let changes = analyzeChanges(
@@ -264,10 +294,12 @@ final class SyncEngine: ObservableObject {
                 configuration: configuration
             )
 
-            // 执行同步
+            // 执行同步（传入 security-scoped URLs）
             let result = try await performSync(
                 changes: changes,
                 configuration: configuration,
+                sourceURL: source,
+                targetURL: target,
                 startTime: startTime
             )
 
@@ -362,14 +394,13 @@ final class SyncEngine: ObservableObject {
 
     /// 扫描文件
     private func scanFiles(
+        sourceURL: URL,
+        targetURL: URL,
         configuration: SyncConfiguration
     ) async throws -> ([String: FileItem], [String: FileItem]) {
         status = .scanning
 
         logManager.info("开始扫描文件...", operation: .scan, configurationId: configuration.id)
-
-        let sourceURL = URL(fileURLWithPath: configuration.sourcePath)
-        let targetURL = URL(fileURLWithPath: configuration.targetPath)
 
         async let sourceFiles = scanDirectory(url: sourceURL, location: .source, configuration: configuration)
         async let targetFiles = scanDirectory(url: targetURL, location: .target, configuration: configuration)
@@ -419,16 +450,39 @@ final class SyncEngine: ObservableObject {
             throw FileManagerError.notADirectory
         }
 
-        // 在后台线程扫描文件列表（避免阻塞主线程）
-        let fileURLs = try await withCheckedThrowingContinuation { continuation in
-            Task.detached {
-                do {
-                    let urls = try fileManager.recursiveContents(of: url, includeHidden: false)
-                    continuation.resume(returning: urls)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
+        // 直接在当前上下文扫描文件列表（保持 security-scoped 访问）
+        let fileURLs: [URL]
+        do {
+            // 先尝试直接访问目录
+            let testAccess = fileManager.isReadableFile(atPath: url.path)
+            logManager.debug(
+                "目录可读性测试 (\(url.path)): \(testAccess)",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+            
+            // 尝试列出目录内容
+            let contents = try fileManager.contentsOfDirectory(atPath: url.path)
+            logManager.debug(
+                "目录内容 (\(url.path)): \(contents.count) 项",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+            
+            fileURLs = try fileManager.recursiveContents(of: url, includeHidden: false)
+            logManager.debug(
+                "成功扫描目录 (\(url.path)): \(fileURLs.count) 个文件",
+                operation: .scan,
+                configurationId: configuration.id
+            )
+        } catch {
+            logManager.error(
+                "扫描目录失败 (\(url.path)): \(error.localizedDescription)",
+                operation: .error,
+                configurationId: configuration.id,
+                error: error
+            )
+            throw error
         }
 
         logManager.debug(
@@ -464,30 +518,12 @@ final class SyncEngine: ObservableObject {
             }
 
             do {
-                // 在后台读取文件属性
-                var fileItem = try await withCheckedThrowingContinuation { continuation in
-                    Task.detached {
-                        do {
-                            let item = try FileItem.from(url: fileURL, baseURL: url, location: location)
-                            continuation.resume(returning: item)
-                        } catch {
-                            continuation.resume(throwing: error)
-                        }
-                    }
-                }
+                // 直接在当前上下文读取文件属性（保持 security-scoped 访问）
+                var fileItem = try FileItem.from(url: fileURL, baseURL: url, location: location)
 
                 // 如果需要验证完整性，计算校验和
                 if configuration.verifyFileIntegrity && !fileItem.isDirectory {
-                    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                        Task.detached {
-                            do {
-                                try fileItem.calculateSHA256()
-                                continuation.resume()
-                            } catch {
-                                continuation.resume(throwing: error)
-                            }
-                        }
-                    }
+                    try fileItem.calculateSHA256()
                 }
 
                 files[relativePath] = fileItem
@@ -612,6 +648,8 @@ final class SyncEngine: ObservableObject {
     private func performSync(
         changes: SyncChanges,
         configuration: SyncConfiguration,
+        sourceURL: URL,
+        targetURL: URL,
         startTime: Date
     ) async throws -> SyncResult {
         status = .syncing
@@ -623,9 +661,6 @@ final class SyncEngine: ObservableObject {
         var conflictsResolved = 0
         var errors: [Error] = []
         var totalBytes: Int64 = 0
-
-        let sourceURL = URL(fileURLWithPath: configuration.sourcePath)
-        let targetURL = URL(fileURLWithPath: configuration.targetPath)
 
         // 设置进度
         progress.totalFiles = changes.toAdd.count + changes.toUpdate.count +
@@ -818,19 +853,68 @@ final class SyncEngine: ObservableObject {
     private func copyFile(_ file: FileItem, from sourceBase: URL, to targetBase: URL) async throws {
         let sourceURL = sourceBase.appendingPathComponent(file.relativePath)
         let targetURL = targetBase.appendingPathComponent(file.relativePath)
-
-        try FileManager.default.safeCopyItem(at: sourceURL, to: targetURL)
-
+        
+        let fileManager = FileManager.default
+        
+        // 调试：检查权限
+        let sourceReadable = fileManager.isReadableFile(atPath: sourceURL.path)
+        let targetDirWritable = fileManager.isWritableFile(atPath: targetBase.path)
+        
         logManager.debug(
-            "复制文件: \(file.relativePath)",
+            "复制权限检查: 源可读=\(sourceReadable), 目标目录可写=\(targetDirWritable), 源=\(sourceURL.path), 目标=\(targetURL.path)",
             operation: .copy
         )
+        
+        // 确保目标目录存在
+        let destinationDir = targetURL.deletingLastPathComponent()
+        if !fileManager.fileExists(atPath: destinationDir.path) {
+            logManager.debug(
+                "创建目标目录: \(destinationDir.path)",
+                operation: .copy
+            )
+            try fileManager.createDirectory(at: destinationDir, withIntermediateDirectories: true)
+        }
+        
+        // 如果目标文件已存在，先删除
+        if fileManager.fileExists(atPath: targetURL.path) {
+            logManager.debug(
+                "删除已存在的目标文件: \(targetURL.path)",
+                operation: .copy
+            )
+            try fileManager.removeItem(at: targetURL)
+        }
+        
+        // 复制文件
+        logManager.debug(
+            "开始复制: \(sourceURL.path) -> \(targetURL.path)",
+            operation: .copy
+        )
+        
+        do {
+            try fileManager.copyItem(at: sourceURL, to: targetURL)
+            
+            // 保留原文件的修改时间
+            try fileManager.preserveModificationDate(from: sourceURL, to: targetURL)
+            
+            logManager.debug(
+                "复制成功: \(file.relativePath)",
+                operation: .copy
+            )
+        } catch {
+            logManager.error(
+                "复制失败 (详细): 源=\(sourceURL.path), 目标=\(targetURL.path), 错误=\(error)",
+                operation: .error,
+                error: error
+            )
+            throw error
+        }
     }
 
     /// 删除文件
     private func deleteFile(_ file: FileItem, at baseURL: URL) async throws {
         let fileURL = baseURL.appendingPathComponent(file.relativePath)
 
+        // 使用同步方式执行文件操作，确保在 security-scoped 访问的上下文中
         try FileManager.default.removeItem(at: fileURL)
 
         logManager.debug(
@@ -865,6 +949,7 @@ enum SyncError: Error, LocalizedError {
     case targetNotDirectory
     case insufficientDiskSpace
     case syncInProgress
+    case insufficientPermissions
 
     var errorDescription: String? {
         switch self {
@@ -882,6 +967,8 @@ enum SyncError: Error, LocalizedError {
             return "磁盘空间不足"
         case .syncInProgress:
             return "同步已在进行中"
+        case .insufficientPermissions:
+            return "权限不足 - 无法访问文件夹"
         }
     }
 }
