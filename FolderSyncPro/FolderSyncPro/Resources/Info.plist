@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>FolderSync Pro</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2025 FolderSync Pro. All rights reserved.</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSMainStoryboardFile</key>
+	<string>Main</string>
+	<key>NSSupportsAutomaticTermination</key>
+	<true/>
+	<key>NSSupportsSuddenTermination</key>
+	<true/>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>FolderSync Pro 需要发送通知来提醒您同步状态和重要事件。</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>FolderSync Pro 需要访问系统事件来管理文件操作。</string>
+	<key>NSSystemAdministrationUsageDescription</key>
+	<string>FolderSync Pro 需要管理员权限来访问某些受保护的文件夹。</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>FolderSync Pro 需要访问桌面文件夹来进行文件同步。</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>FolderSync Pro 需要访问文稿文件夹来进行文件同步。</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>FolderSync Pro 需要访问下载文件夹来进行文件同步。</string>
+	<key>NSRemovableVolumesUsageDescription</key>
+	<string>FolderSync Pro 需要访问外部存储设备来进行文件同步。</string>
+	<key>NSNetworkVolumesUsageDescription</key>
+	<string>FolderSync Pro 需要访问网络卷来进行文件同步。</string>
+</dict>
+</plist>
