@@ -142,10 +142,14 @@ final class SyncEngine: ObservableObject {
         var sourceSecurityScopedURL: URL?
         var targetSecurityScopedURL: URL?
 
-        // 确保在同步结束时释放权限
+        // 确保在同步结束时释放权限并重置状态
         defer {
             sourceSecurityScopedURL?.stopAccessingSecurityScopedResource()
             targetSecurityScopedURL?.stopAccessingSecurityScopedResource()
+            // 重置状态为 idle，以便下次可以再次同步
+            if status != .idle {
+                status = .idle
+            }
         }
 
         do {
